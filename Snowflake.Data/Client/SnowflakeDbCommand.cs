@@ -261,7 +261,7 @@ namespace Snowflake.Data.Client
         {
             logger.Debug($"ExecuteDbDataReader");
             SFBaseResultSet resultSet = ExecuteInternal();
-            return new SnowflakeDbDataReader(this, resultSet);
+            return new SnowflakeDbDataReader(this, resultSet, behavior);
         }
 
         protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
@@ -270,7 +270,7 @@ namespace Snowflake.Data.Client
             try
             {
                 var result = await ExecuteInternalAsync(cancellationToken).ConfigureAwait(false);
-                return new SnowflakeDbDataReader(this, result);
+                return new SnowflakeDbDataReader(this, result, behavior);
             }
             catch (Exception ex)
             {

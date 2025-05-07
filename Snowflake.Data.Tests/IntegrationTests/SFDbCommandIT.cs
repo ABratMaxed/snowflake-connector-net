@@ -581,6 +581,46 @@ namespace Snowflake.Data.Tests.IntegrationTests
         }
 
         [Test]
+        public void TestSimpleCommandWithCloseConnection()
+        {
+            using (IDbConnection conn = new SnowflakeDbConnection())
+            {
+                conn.ConnectionString = ConnectionString + "poolingEnabled=false";
+
+                conn.Open();
+                IDbCommand cmd = conn.CreateCommand();
+                cmd.CommandText = "select 1";
+
+                using (var reader = cmd.ExecuteReader(CommandBehavior.CloseConnection))
+                {
+                    while (reader.Read()) { }
+                }
+
+                Assert.AreEqual(ConnectionState.Closed, conn.State);
+            }
+        }
+
+        [Test]
+        public void TestSimpleCommandWithoutCloseConnection()
+        {
+            using (IDbConnection conn = new SnowflakeDbConnection())
+            {
+                conn.ConnectionString = ConnectionString + "poolingEnabled=false";
+
+                conn.Open();
+                IDbCommand cmd = conn.CreateCommand();
+                cmd.CommandText = "select 1";
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read()) { }
+                }
+
+                Assert.AreEqual(ConnectionState.Open, conn.State);
+            }
+        }
+
+        [Test]
         public void TestSimpleLargeResultSet()
         {
             using (IDbConnection conn = new SnowflakeDbConnection())

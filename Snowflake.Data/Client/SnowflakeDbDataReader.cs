@@ -17,6 +17,7 @@ namespace Snowflake.Data.Client
         static private readonly SFLogger logger = SFLoggerFactory.GetLogger<SnowflakeDbDataReader>();
 
         private SnowflakeDbCommand dbCommand;
+        private readonly CommandBehavior cmdBehavior;
 
         private SFBaseResultSet resultSet;
 
@@ -30,9 +31,11 @@ namespace Snowflake.Data.Client
 
         private const int MaxStringLength = 16777216; // Default maximum allowed length for VARCHAR
 
-        internal SnowflakeDbDataReader(SnowflakeDbCommand command, SFBaseResultSet resultSet)
+        internal SnowflakeDbDataReader(SnowflakeDbCommand command, SFBaseResultSet resultSet, CommandBehavior cmdBehavior = CommandBehavior.Default)
         {
             this.dbCommand = command;
+            this.cmdBehavior = cmdBehavior;
+
             this.resultSet = resultSet;
             this.isClosed = false;
             this.SchemaTable = PopulateSchemaTable(resultSet);
@@ -365,6 +368,11 @@ namespace Snowflake.Data.Client
         {
             base.Close();
             resultSet.close();
+
+            //Check command behaviour and close
+            if (cmdBehavior == CommandBehavior.CloseConnection)
+                dbCommand.Connection?.Close();
+
             isClosed = true;
         }
 
