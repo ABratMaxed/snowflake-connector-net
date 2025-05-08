@@ -36,4 +36,4 @@ jobs:
       run: |
         dotnet nuget push ./nupkg/*.nupkg \
           --source "https://pkgs.dev.azure.com/${{ secrets.AZURE_ORG }}/_packaging/${{ secrets.AZURE_FEED }}/nuget/v3/index.json" \
-          --api-key ${{ env.NUGET_AUTH_TOKEN }}
+          --api-key AzureArtifacts
