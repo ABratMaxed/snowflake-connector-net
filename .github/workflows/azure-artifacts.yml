@@ -26,7 +26,7 @@ jobs:
       run: dotnet build ./Snowflake.Data/Snowflake.Data.csproj --configuration Release
 
     - name: Pack NuGet package
-      run: dotnet pack ./Snowflake.Data/Snowflake.Data.csproj --configuration Release -p:PackageId=Loome.Snowflake.Data
+      run: dotnet pack ./Snowflake.Data/Snowflake.Data.csproj  --output ./nupkg --configuration Release -p:PackageId=Loome.Snowflake.Data
 
     - name: Push package to Azure Artifacts
-      run: dotnet nuget push --api-key AzureDevOps --source ${{ secrets.AZURE_FEED }} bin/Release/*.nupkg
+      run: dotnet nuget push ./nupkg/*.nupkg --api-key AzureDevOps --source ${{ secrets.AZURE_FEED }} bin/Release/*.nupkg
