@@ -22,6 +22,7 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '9.0.x'
+        source-url: ${{ env.AZURE_FEED }}
       env:
         NUGET_AUTH_TOKEN: ${{ secrets.AZURE_PAT }}
     
@@ -32,10 +33,7 @@ jobs:
       run: dotnet build ./Snowflake.Data/Snowflake.Data.csproj --configuration Release
 
     - name: Pack NuGet package
-      run: dotnet pack ./Snowflake.Data/Snowflake.Data.csproj --configuration Release --output ./nupkg -p:PackageId=${{ env.PACKAGE_ID }}
+      run: dotnet pack ./Snowflake.Data/Snowflake.Data.csproj --configuration Release -p:PackageId=${{ env.PACKAGE_ID }}
 
     - name: Push package to Azure Artifacts
-      run: |
-        dotnet nuget push ./nupkg/*.nupkg \
-          --source "https://pkgs.dev.azure.com/${{ secrets.AZURE_ORG }}/_packaging/${{ secrets.AZURE_FEED }}/nuget/v3/index.json" \
-          --api-key ${{ secrets.AZURE_PAT }}
+      run: dotnet nuget push --api-key az bin/Release/*.nupkg
