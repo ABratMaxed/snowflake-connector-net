@@ -1,9 +1,6 @@
 name: Publish NuGet Package to Azure Artifacts
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -18,7 +15,7 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '9.0.x'
-        source-url: ${{ env.AZURE_FEED }}
+        source-url: ${{ secrets.AZURE_FEED }}
       env:
         NUGET_AUTH_TOKEN: ${{ secrets.AZURE_PAT }}
     
