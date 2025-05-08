@@ -1,0 +1,38 @@
+name: Publish NuGet Package to Azure Artifacts
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    env:
+      PACKAGE_ID: Loome.Snowflake.Data
+      NUGET_AUTH_TOKEN: ${{ secrets.AZURE_PAT }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build project
+      run: dotnet build --configuration Release
+
+    - name: Pack NuGet package
+      run: dotnet pack --configuration Release --output ./nupkg -p:PackageId=${{ env.PACKAGE_ID }}
+
+    - name: Push package to Azure Artifacts
+      run: |
+        dotnet nuget push ./nupkg/*.nupkg \
+          --source "https://pkgs.dev.azure.com/${{ secrets.AZURE_ORG }}/_packaging/${{ secrets.AZURE_FEED }}/nuget/v3/index.json" \
+          --api-key ${{ env.NUGET_AUTH_TOKEN }}
