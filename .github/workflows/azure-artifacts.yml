@@ -9,11 +9,7 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-
-    env:
-      PACKAGE_ID: Loome.Snowflake.Data
-      NUGET_AUTH_TOKEN: ${{ secrets.AZURE_PAT }}
-
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -33,7 +29,7 @@ jobs:
       run: dotnet build ./Snowflake.Data/Snowflake.Data.csproj --configuration Release
 
     - name: Pack NuGet package
-      run: dotnet pack ./Snowflake.Data/Snowflake.Data.csproj --configuration Release -p:PackageId=${{ env.PACKAGE_ID }}
+      run: dotnet pack ./Snowflake.Data/Snowflake.Data.csproj --configuration Release -p:PackageId=Loome.Snowflake.Data
 
     - name: Push package to Azure Artifacts
       run: dotnet nuget push --api-key az bin/Release/*.nupkg
