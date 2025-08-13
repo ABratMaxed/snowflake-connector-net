@@ -78,7 +78,7 @@ namespace Snowflake.Data.Client
         {
             get
             {
-                return resultSet.HasResultSet() && resultSet.HasRows();
+                return !resultSet.isClosed && resultSet.HasRows();
             }
         }
 
@@ -247,7 +247,7 @@ namespace Snowflake.Data.Client
         public override int GetValues(object[] values)
         {
             int count = Math.Min(FieldCount, values.Length);
-            for (int i=0; i< count; i++)
+            for (int i = 0; i < count; i++)
             {
                 values[i] = GetValue(i);
             }
@@ -379,7 +379,7 @@ namespace Snowflake.Data.Client
         private bool IsStructuredOrSemiStructuredType(string type)
         {
             type = type.ToLower();
-            return type == "array" || type == "object" || type == "variant"|| type == "map";
+            return type == "array" || type == "object" || type == "variant" || type == "map";
         }
     }
 }
