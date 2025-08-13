@@ -9,6 +9,7 @@ namespace Snowflake.Data.Tests.UnitTests
     using NUnit.Framework;
     using System.Threading;
     using System.Globalization;
+    using System.Numerics;
 
     [TestFixture]
     [SetCulture("en-US")]
@@ -162,6 +163,18 @@ namespace Snowflake.Data.Tests.UnitTests
         {
             Int64 actual = (Int64)SFDataConverter.ConvertToCSharpVal(ConvertToUTF8Buffer(s), SFDataType.FIXED, typeof(Int64));
             Int64 expected = Convert.ToInt64(s);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        [TestCase("9223372036854775807232322312")]
+        [TestCase("-922337203685477580823232323")]
+        [TestCase("-123423444444444444442341231")]
+        [TestCase("9999999999999999993423423433")]
+        public void TestConvertToBigInt(string s)
+        {
+            BigInteger actual = (BigInteger)SFDataConverter.ConvertToCSharpVal(ConvertToUTF8Buffer(s), SFDataType.FIXED, typeof(Int64));
+            BigInteger expected = BigInteger.Parse(s);
             Assert.AreEqual(expected, actual);
         }
 
