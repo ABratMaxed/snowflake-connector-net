@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using Snowflake.Data.Client;
 using Snowflake.Data.Log;
 
@@ -8,6 +9,47 @@ namespace Snowflake.Data.Core
     {
         private static readonly SFLogger Logger = SFLoggerFactory.GetLogger<FastParser>();
 
+        //FastParseInt64 but returns false instead of throwing exception
+        public static bool TryFastParseInt64(byte[] s, int offset, int len, out Int64 result)
+        {
+            if (s == null)
+            {
+                Exception ex = new SnowflakeDbException(SFError.INTERNAL_ERROR, $"Cannot parse a null buffer");
+                Logger.Error("A null buffer was passed to FastParseInt64", ex);
+                throw ex;
+            }
+
+            result = 0;
+            int i = offset;
+            bool isMinus = false;
+            if (len > 0 && s[i] == '-')
+            {
+                isMinus = true;
+                i++;
+            }
+            int end = len + offset;
+            for (; i < end; i++)
+            {
+                if ((UInt64)result > (0x7fffffffffffffff / 10))
+                    return false;
+                int c = s[i] - '0';
+                if (c < 0 || c > 9)
+                    throw new FormatException();
+                result = result * 10 + c;
+            }
+            if (isMinus)
+            {
+                result = -result;
+                if (result > 0)
+                    return false;
+            }
+            else
+            {
+                if (result < 0)
+                    return false;
+            }
+            return true;
+        }
         public static Int64 FastParseInt64(byte[] s, int offset, int len)
         {
             if (s == null)
@@ -167,6 +209,49 @@ namespace Snowflake.Data.Core
                     result = -result;
                 return result;
             }
+        }
+
+        public static BigInteger FastParseBigInteger(byte[] s, int offset, int len)
+        {
+            // Validate input buffer is not null
+            if (s == null)
+            {
+                Exception ex = new SnowflakeDbException(SFError.INTERNAL_ERROR, $"Cannot parse a null buffer");
+                Logger.Error("A null buffer was passed to FastParseBigInteger", ex);
+                throw ex;
+            }
+
+            // Initialize result and parsing variables
+            BigInteger result = 0;
+            int i = offset;
+            bool isMinus = false;
+
+            // Check if number is negative (starts with '-')
+            if (len > 0 && s[i] == '-')
+            {
+                isMinus = true;
+                i++; // Skip the minus sign
+            }
+
+            // Calculate end position for parsing
+            int end = len + offset;
+
+            // Parse each digit by converting byte to int and building the number
+            for (; i < end; i++)
+            {
+                int c = s[i] - '0'; // Convert ASCII digit to integer (e.g., '5' - '0' = 5)
+                if (c < 0 || c > 9) // Validate it's a valid digit (0-9)
+                    throw new FormatException();
+                result = result * 10 + c; // Build number: shift left and add new digit
+            }
+
+            // Apply negative sign if detected
+            if (isMinus)
+            {
+                result = -result;
+            }
+
+            return result;
         }
     }
 }
