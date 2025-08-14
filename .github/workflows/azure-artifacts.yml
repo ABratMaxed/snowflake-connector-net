@@ -1,4 +1,4 @@
-name: Publish NuGet Package to Azure Artifacts
+name: $(Date:yyyy).$(Date:MM).$(Date:dd).$(Rev:r)
 
 on:
   workflow_dispatch:
@@ -24,9 +24,9 @@ jobs:
 
     - name: Build project
       run: dotnet build ./Snowflake.Data/Snowflake.Data.csproj --configuration Release
-
+      
     - name: Pack NuGet package
-      run: dotnet pack ./Snowflake.Data/Snowflake.Data.csproj  --output ./nupkg --configuration Release -p:PackageId=Loome.Snowflake.Data
+      run: dotnet pack ./Snowflake.Data/Snowflake.Data.csproj --output ./nupkg --configuration Release -p:PackageId=Loome.Snowflake.Data -p:Version=$(Build.BuildNumber)
 
     - name: Push package to Azure Artifacts
       run: dotnet nuget push ./nupkg/*.nupkg --api-key AzureDevOps --source ${{ secrets.AZURE_FEED }}
